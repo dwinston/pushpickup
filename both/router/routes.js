@@ -13,17 +13,17 @@ Router.configure({
     loadingTemplate: 'loading'
 });
 
-Router.onRun(function () {Session.set("waiting-on", null);this.next(); });
-Router.onBeforeAction(function() { Alerts.clearSeen();this.next(); });
+Router.onRun(function () {Session.set("waiting-on", null); });
+Router.onBeforeAction(function() { Alerts.clearSeen(); });
 
 var filters = {
-    nProgressHook: function () {
+    nProgressHook: function (pause) {
         // we're done waiting on all subs
         if (this.ready()) {
             NProgress.done();
-            this.next();
         } else {
             NProgress.start();
+            pause(); // stop downstream funcs from running
         }
     }
 };
@@ -49,8 +49,6 @@ Meteor.startup(function () {
                     Session.set("settings-set-password", true);
                     // Session.set("enrolling", true) // do something special?
                 });
-
-                this.next();
             }
         });
 
@@ -224,8 +222,6 @@ Meteor.startup(function () {
                     Session.set("settings-set-password", true);
                     // Session.set("enrolling", true) // do something special?
                 });
-
-                this.next();
             }
         });
 
@@ -242,14 +238,12 @@ Meteor.startup(function () {
             layoutTemplate: 'devLayout',
             onRun: function () {
                 Session.set("joined-game", null);
-                this.next();
             },
             waitOn: function () {
                 return Meteor.subscribe('game', this.params._id);
             },
             onBeforeAction: function (pause) {
                 Session.set("soloGame", this.params._id);
-                this.next();
             },
             data: function () {
               var game = Games.findOne(this.params._id);
@@ -308,7 +302,6 @@ Meteor.startup(function () {
                 Session.set("newGameDay", null);
                 Session.set("newGameTime", null);
                 InviteList.remove({});
-                this.next();
             },
             waitOn: function() {
                 Meteor.subscribe('recently-played');
@@ -334,14 +327,12 @@ Meteor.startup(function () {
             layoutTemplate: 'devLayout',
             onRun: function () {
                 Session.set("selectedLocationPoint", null);
-                this.next();
             },
             waitOn: function () {
                 return Meteor.subscribe('game', this.params._id);
             },
             onBeforeAction: function (pause) {
                 Session.set("soloGame", this.params._id);
-                this.next();
             },
             data: function () {
                 return _.extend({
@@ -369,9 +360,6 @@ Meteor.startup(function () {
                 var user = Meteor.user();
                 if (!user || !user.admin) {
                     this.render('home');
-                }
-                else {
-                    this.next();
                 }
             }
         });

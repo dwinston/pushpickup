@@ -1,0 +1,10 @@
+{
+  "packages": {
+    "iron-router": {},
+    "nprogress": {},
+    "spin": {},
+    "bootstrap3-less": {},
+    "font-awesome": {},
+    "moment": {}
+  }
+}
